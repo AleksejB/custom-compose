@@ -1,6 +1,7 @@
 package com.aleksejb.shapes
 
 import androidx.compose.ui.graphics.Color
+import com.aleksejb.domain_core.model.OutlineType
 
 
 data class ShapesState(
@@ -12,12 +13,7 @@ data class ShapesState(
         val Initial = ShapesState(
             numberOfSide = 3,
             outlineType = OutlineType.SOILD,
-            fillColor = Color.White
+            fillColor = Color.Black
         )
     }
-}
-
-enum class OutlineType {
-    SOILD,
-    DASHED
 }

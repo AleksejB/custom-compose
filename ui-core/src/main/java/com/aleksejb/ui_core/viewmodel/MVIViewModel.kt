@@ -7,44 +7,39 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-abstract class MVIViewModel<Effect, Event, State>: ViewModel() {
+abstract class MVIViewModel<State, Event, Effect>: ViewModel() {
 
-    private val initialState: State by lazy { createInitialState() }
-    abstract fun createInitialState(): State
+    protected abstract val _state: MutableStateFlow<State>
+    val state: StateFlow<State>
+        get() = _state
 
-    val currentState: State
-        get() = _state.value
+    private val _events: MutableSharedFlow<Event> = MutableSharedFlow()
+    private val event = _events.asSharedFlow()
 
     private val _effects: Channel<Effect> = Channel()
     val effects = _effects.receiveAsFlow()
 
-    private val _events: MutableSharedFlow<Event> = MutableSharedFlow()
-    val events = _events.asSharedFlow()
-
-    private val _state: MutableStateFlow<State> = MutableStateFlow(initialState)
-    val state = _state.asStateFlow()
-
     init {
         viewModelScope.launch {
-            events.collect {
-                handleEvent(it)
+            event.collect { event ->
+                handleEvent(event)
             }
         }
     }
 
+    protected abstract fun handleEvent(event: Event)
+
     fun postEvent(event: Event) {
-        viewModelScope.launch { _events.emit(event) }
+        viewModelScope.launch {
+            _events.emit(event)
+        }
     }
 
-    protected fun setState(reduce: State.() -> State) {
-        val newState = currentState.reduce()
-        _state.value = newState
+    protected fun postEffect(effect: Effect) {
+        viewModelScope.launch {
+            _effects.send(effect)
+        }
     }
 
-    protected fun setEffect(builder: () -> Effect) {
-        val effectValue = builder()
-        viewModelScope.launch { _effects.send(effectValue) }
-    }
-
-    abstract fun handleEvent(event: Event)
+    protected fun updateState(action: State.() -> State) = _state.update(action)
 }
