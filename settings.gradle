@@ -14,7 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "CustomCompose"
 include ':app'
-include ':ui-main-selection'
+include ':ui-shapes'
 include ':ui-core'
-include ':ui-chess-timer'
 include ':domain-core'

@@ -9,14 +9,6 @@ import kotlinx.coroutines.launch
 
 abstract class MVIViewModel<Effect, Event, State>: ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            events.collect {
-                handleEvent(it)
-            }
-        }
-    }
-
     private val initialState: State by lazy { createInitialState() }
     abstract fun createInitialState(): State
 
@@ -31,6 +23,14 @@ abstract class MVIViewModel<Effect, Event, State>: ViewModel() {
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(initialState)
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            events.collect {
+                handleEvent(it)
+            }
+        }
+    }
 
     fun postEvent(event: Event) {
         viewModelScope.launch { _events.emit(event) }

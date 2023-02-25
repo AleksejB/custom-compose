@@ -12,9 +12,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/domain-core" />
-            <option value="$PROJECT_DIR$/ui-chess-timer" />
             <option value="$PROJECT_DIR$/ui-core" />
-            <option value="$PROJECT_DIR$/ui-main-selection" />
+            <option value="$PROJECT_DIR$/ui-shapes" />
           </set>
         </option>
       </GradleProjectSettings>
