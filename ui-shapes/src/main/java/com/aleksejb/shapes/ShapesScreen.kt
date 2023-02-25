@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aleksejb.domain_core.model.OutlineType
 import com.aleksejb.ui_core.R
@@ -42,7 +44,8 @@ private fun ShapesScreenContent(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.normal_100))
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -75,8 +78,8 @@ private fun ShapesScreenContent(
 
         Canvas(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.6f)
+                .width(350.dp)
+                .height(350.dp)
                 .background(Color.Black),
         ) {
             //draw here
