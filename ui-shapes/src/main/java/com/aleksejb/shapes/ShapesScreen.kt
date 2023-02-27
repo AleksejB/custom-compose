@@ -9,7 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,13 +80,49 @@ private fun ShapesScreenContent(
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
         }
 
-        Canvas(
-            modifier = Modifier
-                .width(350.dp)
-                .height(350.dp)
-                .background(Color.Black),
-        ) {
-            //draw here
+        Box() {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp),
+            ) {
+                val trianglePath = Path().let {
+                    it.moveTo(0f, this.size.height)
+                    it.lineTo(this.size.width, this.size.height)
+                    it.lineTo(this.size.width / 2, 0f)
+                    it.close()
+                    it
+                }
+
+                drawPath(trianglePath, state.fillColor)
+
+                drawPath(
+                    path = trianglePath,
+                    color = Color.Blue,
+                    style = if (state.outlineType == OutlineType.SOILD) {
+                        Stroke(
+                            width = 15f,
+                            miter = 0f,
+                            cap = StrokeCap.Butt,
+                            join = StrokeJoin.Miter
+                        )
+                    } else {
+                        Stroke(
+                            width = 15f,
+                            miter = 5f,
+                            cap = StrokeCap.Butt,
+                            join = StrokeJoin.Miter,
+                            pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
+                        )
+                    }
+                )
+            }
+
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "ASDASDASD",
+                color = Color.White
+            )
         }
     }
 }
