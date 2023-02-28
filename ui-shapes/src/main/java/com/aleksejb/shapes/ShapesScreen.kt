@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aleksejb.domain_core.model.OutlineType
 import com.aleksejb.ui_core.R
@@ -51,61 +53,114 @@ private fun ShapesScreenContent(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.normal_100))
             .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly,
+//        verticalArrangement = Arrangement.End,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
+//        Column(
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            NumberOfSidesSelection(
+//                modifier = Modifier.weight(1f),
+//                state = state,
+//                eventHandler = eventHandler
+//            )
+//
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                OutlineTypeSelection(
+//                    modifier = Modifier.weight(1f),
+//                    state = state,
+//                    eventHandler = eventHandler
+//                )
+//
+//                FillSelection(
+//                    modifier = Modifier.weight(1f),
+//                    state = state,
+//                    eventHandler = eventHandler
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
+//        }
+
+        Row(
             modifier = Modifier.fillMaxWidth()
         ) {
+            NumberOfSidesSelection(
+                modifier = Modifier.weight(4f),
+                state = state,
+                eventHandler = eventHandler
+            )
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.weight(1f)
             ) {
-                NumberOfSidesSelection(
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                    eventHandler = eventHandler
+                Text(
+                    modifier = Modifier
+                        .padding(end = 24.dp)
+                        .clickable { eventHandler(ShapesEvent.OnNumberOfSidesSelected(state.numberOfSide + 1)) },
+                    text = "+" ,
+                    fontSize = 30.sp
                 )
 
-                OutlineTypeSelection(
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                    eventHandler = eventHandler
-                )
-
-                FillSelection(
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                    eventHandler = eventHandler
+                Text(
+                    modifier = Modifier.clickable { eventHandler(ShapesEvent.OnNumberOfSidesSelected(state.numberOfSide - 1)) },
+                    text = "-" ,
+                    fontSize = 30.sp
                 )
             }
-
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            OutlineTypeSelection(
+                modifier = Modifier.weight(1f),
+                state = state,
+                eventHandler = eventHandler
+            )
+
+            FillSelection(
+                modifier = Modifier.weight(1f),
+                state = state,
+                eventHandler = eventHandler
+            )
+        }
+
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
 
         val size = LocalConfiguration.current.screenWidthDp
 
-        RegularPolygon(
-            numberOfSides = state.numberOfSide,
-            borderStyle = if (state.outlineType == OutlineType.SOILD) {
-                Stroke(
-                    width = 15f,
-                    miter = 0f,
-                    cap = StrokeCap.Butt,
-                    join = StrokeJoin.Miter
-                )
-            } else {
-                Stroke(
-                    width = 15f,
-                    miter = 5f,
-                    cap = StrokeCap.Butt,
-                    join = StrokeJoin.Miter,
-                    pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
-                )
-            },
-            fillColor = state.fillColor,
-            size = 300.dp
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            RegularPolygon(
+                modifier = Modifier.fillMaxSize(),
+                numberOfSides = state.numberOfSide.toInt(),
+                borderStyle = if (state.outlineType == OutlineType.SOILD) {
+                    Stroke(
+                        width = 15f,
+                        miter = 0f,
+                        cap = StrokeCap.Butt,
+                        join = StrokeJoin.Miter
+                    )
+                } else {
+                    Stroke(
+                        width = 15f,
+                        miter = 5f,
+                        cap = StrokeCap.Butt,
+                        join = StrokeJoin.Miter,
+                        pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
+                    )
+                },
+                fillColor = state.fillColor,
+            )
+        }
 
 //        Box(
 //            modifier = Modifier.size(350.dp)
@@ -144,13 +199,15 @@ private fun ShapesScreenContent(
 @Composable
 fun RegularPolygon(
     modifier: Modifier = Modifier,
-    size: Dp,
     numberOfSides: Int,
     borderStyle: DrawStyle,
     fillColor: Color
 ) {
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
     Canvas(
-        modifier = modifier.size(size),
+        modifier = Modifier
+            .heightIn(max = screenWidthDp.dp, min = 0.dp)
+            .then(modifier),
     ) {
         val centerPoint = Pair<Float, Float>(this.size.width / 2, this.size.height / 2)
         val startPoint = Pair(this.size.width / 2, 0f)
@@ -221,6 +278,7 @@ private fun FillSelection(
     state: ShapesState,
     eventHandler: (ShapesEvent) -> Unit
 ) {
+
     val isFillSelectionExpanded = remember { mutableStateOf(false) }
     val fillOptions = listOf(
         Color.Black,
@@ -306,29 +364,37 @@ private fun NumberOfSidesSelection(
     state: ShapesState,
     eventHandler: (ShapesEvent) -> Unit
 ) {
-    val isNumberOfSidesSelectionExpanded = remember { mutableStateOf(false) }
-    val numberOfSides = listOf(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100)
+//    val isNumberOfSidesSelectionExpanded = remember { mutableStateOf(false) }
+//    val numberOfSides = listOf(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100)
 
     Column(
         modifier = modifier
     ) {
         Text(
             modifier = Modifier
-                .clickable { isNumberOfSidesSelectionExpanded.value = true }
                 .padding(horizontal = dimensionResource(id = R.dimen.small_100)),
             text = "n: ${state.numberOfSide}"
         )
 
-        DropdownMenu(
-            expanded = isNumberOfSidesSelectionExpanded.value,
-            onDismissRequest = { isNumberOfSidesSelectionExpanded.value = false }
-        ) {
-            numberOfSides.forEach {
-                Text(
-                    modifier = Modifier.clickable { eventHandler(ShapesEvent.OnNumberOfSidesSelected(it)) },
-                    text = it.toString()
-                )
-            }
-        }
+        Slider(
+            modifier = Modifier.fillMaxWidth(),
+            value = state.numberOfSide,
+            onValueChange = { eventHandler(ShapesEvent.OnNumberOfSidesSelected(it)) },
+            valueRange = 3f..100f,
+            steps = 100 - 3,
+
+        )
+//
+//        DropdownMenu(
+//            expanded = isNumberOfSidesSelectionExpanded.value,
+//            onDismissRequest = { isNumberOfSidesSelectionExpanded.value = false }
+//        ) {
+//            numberOfSides.forEach {
+//                Text(
+//                    modifier = Modifier.clickable { eventHandler(ShapesEvent.OnNumberOfSidesSelected(it)) },
+//                    text = it.toString()
+//                )
+//            }
+//        }
     }
 }

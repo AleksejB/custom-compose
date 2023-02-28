@@ -5,13 +5,13 @@ import com.aleksejb.domain_core.model.OutlineType
 
 
 data class ShapesState(
-    val numberOfSide: Int,
+    val numberOfSide: Float,
     val outlineType: OutlineType,
     val fillColor: Color
 ) {
     companion object {
         val Initial = ShapesState(
-            numberOfSide = 3,
+            numberOfSide = 3f,
             outlineType = OutlineType.SOILD,
             fillColor = Color.Black
         )

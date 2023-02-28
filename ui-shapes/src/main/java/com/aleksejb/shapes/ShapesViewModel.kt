@@ -13,7 +13,11 @@ class ShapesViewModel constructor(
         when (event) {
             is ShapesEvent.OnFillSelected -> updateState { copy(fillColor = event.fillColor) }
             is ShapesEvent.OnOutlineTypeSelected -> updateState { copy(outlineType = event.outlineType) }
-            is ShapesEvent.OnNumberOfSidesSelected -> updateState { copy(numberOfSide = event.numberOfSides) }
+            is ShapesEvent.OnNumberOfSidesSelected -> {
+                if (event.numberOfSides < 3 || event.numberOfSides > 100) return
+                updateState { copy(numberOfSide = event.numberOfSides) }
+            }
         }
     }
 }
+
