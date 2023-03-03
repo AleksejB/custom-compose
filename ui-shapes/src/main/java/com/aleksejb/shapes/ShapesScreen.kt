@@ -53,38 +53,7 @@ private fun ShapesScreenContent(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.normal_100))
             .fillMaxSize(),
-//        verticalArrangement = Arrangement.End,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        Column(
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            NumberOfSidesSelection(
-//                modifier = Modifier.weight(1f),
-//                state = state,
-//                eventHandler = eventHandler
-//            )
-//
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                OutlineTypeSelection(
-//                    modifier = Modifier.weight(1f),
-//                    state = state,
-//                    eventHandler = eventHandler
-//                )
-//
-//                FillSelection(
-//                    modifier = Modifier.weight(1f),
-//                    state = state,
-//                    eventHandler = eventHandler
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
-//        }
-
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -132,67 +101,33 @@ private fun ShapesScreenContent(
 
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.normal_100)))
 
-        val size = LocalConfiguration.current.screenWidthDp
-
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        RegularPolygon(
+            modifier = Modifier,
+            numberOfSides = state.numberOfSide.toInt(),
+            borderStyle = if (state.outlineType == OutlineType.SOILD) {
+                Stroke(
+                    width = 15f,
+                    miter = 0f,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter
+                )
+            } else {
+                Stroke(
+                    width = 15f,
+                    miter = 5f,
+                    cap = StrokeCap.Butt,
+                    join = StrokeJoin.Miter,
+                    pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
+                )
+            },
+            fillColor = state.fillColor,
         ) {
-            RegularPolygon(
-                modifier = Modifier.fillMaxSize(),
-                numberOfSides = state.numberOfSide.toInt(),
-                borderStyle = if (state.outlineType == OutlineType.SOILD) {
-                    Stroke(
-                        width = 15f,
-                        miter = 0f,
-                        cap = StrokeCap.Butt,
-                        join = StrokeJoin.Miter
-                    )
-                } else {
-                    Stroke(
-                        width = 15f,
-                        miter = 5f,
-                        cap = StrokeCap.Butt,
-                        join = StrokeJoin.Miter,
-                        pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
-                    )
-                },
-                fillColor = state.fillColor,
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "ASDASDASDASD",
+                color = Color.White
             )
         }
-
-//        Box(
-//            modifier = Modifier.size(350.dp)
-//        ) {
-//            RegularPolygon(
-//                numberOfSides = state.numberOfSide,
-//                borderStyle = if (state.outlineType == OutlineType.SOILD) {
-//                    Stroke(
-//                        width = 15f,
-//                        miter = 0f,
-//                        cap = StrokeCap.Butt,
-//                        join = StrokeJoin.Miter
-//                    )
-//                } else {
-//                    Stroke(
-//                        width = 15f,
-//                        miter = 5f,
-//                        cap = StrokeCap.Butt,
-//                        join = StrokeJoin.Miter,
-//                        pathEffect = PathEffect.dashPathEffect(intervals = floatArrayOf(20f, 10f), phase = 0f)
-//                    )
-//                },
-//                fillColor = state.fillColor,
-//                size = 350.dp
-//            )
-//
-//            Text(
-//                modifier = Modifier.align(Alignment.Center),
-//                text = "ASDASDASD",
-//                color = Color.White
-//            )
-//        }
     }
 }
 
@@ -201,74 +136,80 @@ fun RegularPolygon(
     modifier: Modifier = Modifier,
     numberOfSides: Int,
     borderStyle: DrawStyle,
-    fillColor: Color
+    fillColor: Color,
+    content: @Composable BoxScope.() -> Unit
 ) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    Canvas(
-        modifier = Modifier
-            .heightIn(max = screenWidthDp.dp, min = 0.dp)
-            .then(modifier),
+    BoxWithConstraints(
+        modifier = modifier
     ) {
-        val centerPoint = Pair<Float, Float>(this.size.width / 2, this.size.height / 2)
-        val startPoint = Pair(this.size.width / 2, 0f)
-        val radius = this.size.width / 2
-        val sweepAngle = (360f / numberOfSides)
+        Canvas(
+            modifier = Modifier
+                .size(this.maxWidth),
+        ) {
+            val centerPoint = Pair<Float, Float>(this.size.width / 2, this.size.height / 2)
+            val startPoint = Pair(centerPoint.first, 0f)
+            val radius = this.size.width / 2
+            val sweepAngle = (360f / numberOfSides)
 
-        val path = Path().let {
-            it.moveTo(startPoint.first, startPoint.second)
+            val path = Path().let {
+                it.moveTo(startPoint.first, startPoint.second)
 
-            val polygonEdgePoints = mutableListOf<Pair<Float, Float>>()
+                val polygonEdgePoints = mutableListOf<Pair<Float, Float>>()
 
-            var currentSweepAngle = 0f
-            for (i in 2..numberOfSides) {
-                currentSweepAngle += sweepAngle
+                var currentSweepAngle = 0f
+                for (i in 2..numberOfSides) {
+                    currentSweepAngle += sweepAngle
 
-                when {
-                    currentSweepAngle in 0f..90f -> {
-                        val angle = 90 - currentSweepAngle
-                        val angleInRadians = angle * (3.14159265359 / 180)
-                        val x = centerPoint.first + (radius * cos(angleInRadians)).toFloat()
-                        val y = centerPoint.second - (radius * sin(angleInRadians)).toFloat()
-                        polygonEdgePoints.add(Pair(x, y))
-                    }
-                    currentSweepAngle > 90f && currentSweepAngle <= 180f -> {
-                        val angle = 90 - (currentSweepAngle - 90)
-                        val angleInRadians = angle * (3.14159265359 / 180)
-                        val x = centerPoint.first + (radius * sin(angleInRadians)).toFloat()
-                        val y = centerPoint.second + (radius * cos(angleInRadians)).toFloat()
-                        polygonEdgePoints.add((Pair(x, y)))
-                    }
-                    currentSweepAngle > 180f && currentSweepAngle <= 270f -> {
-                        val angle = currentSweepAngle - 180
-                        val angleInRadians = angle * (3.14159265359 / 180)
-                        val x = centerPoint.first - (radius * sin(angleInRadians)).toFloat()
-                        val y = centerPoint.second + (radius * cos(angleInRadians)).toFloat()
-                        polygonEdgePoints.add(Pair(x, y))
-                    }
-                    currentSweepAngle > 270f && currentSweepAngle <= 360 -> {
-                        val angle = currentSweepAngle - 270
-                        val angleInRadians = angle * (3.14159265359 / 180)
-                        val x = centerPoint.first - (radius * cos(angleInRadians)).toFloat()
-                        val y = centerPoint.second - (radius * sin(angleInRadians)).toFloat()
-                        polygonEdgePoints.add(Pair(x, y))
+                    when {
+                        currentSweepAngle in 0f..90f -> {
+                            val angle = 90 - currentSweepAngle
+                            val angleInRadians = angle * (3.14159265359 / 180)
+                            val x = centerPoint.first + (radius * cos(angleInRadians)).toFloat()
+                            val y = centerPoint.second - (radius * sin(angleInRadians)).toFloat()
+                            polygonEdgePoints.add(Pair(x, y))
+                        }
+                        currentSweepAngle > 90f && currentSweepAngle <= 180f -> {
+                            val angle = 90 - (currentSweepAngle - 90)
+                            val angleInRadians = angle * (3.14159265359 / 180)
+                            val x = centerPoint.first + (radius * sin(angleInRadians)).toFloat()
+                            val y = centerPoint.second + (radius * cos(angleInRadians)).toFloat()
+                            polygonEdgePoints.add((Pair(x, y)))
+                        }
+                        currentSweepAngle > 180f && currentSweepAngle <= 270f -> {
+                            val angle = currentSweepAngle - 180
+                            val angleInRadians = angle * (3.14159265359 / 180)
+                            val x = centerPoint.first - (radius * sin(angleInRadians)).toFloat()
+                            val y = centerPoint.second + (radius * cos(angleInRadians)).toFloat()
+                            polygonEdgePoints.add(Pair(x, y))
+                        }
+                        currentSweepAngle > 270f && currentSweepAngle <= 360 -> {
+                            val angle = currentSweepAngle - 270
+                            val angleInRadians = angle * (3.14159265359 / 180)
+                            val x = centerPoint.first - (radius * cos(angleInRadians)).toFloat()
+                            val y = centerPoint.second - (radius * sin(angleInRadians)).toFloat()
+                            polygonEdgePoints.add(Pair(x, y))
+                        }
                     }
                 }
+
+                polygonEdgePoints.forEachIndexed { index, edgePoint ->
+                    it.lineTo(edgePoint.first, edgePoint.second)
+                }
+                it.close()
+                it
             }
 
-            polygonEdgePoints.forEachIndexed { index, edgePoint ->
-                it.lineTo(edgePoint.first, edgePoint.second)
-            }
-            it.close()
-            it
+            drawPath(path, fillColor)
+
+            drawPath(
+                path = path,
+                color = Color.Blue,
+                style = borderStyle
+            )
         }
 
-        drawPath(path, fillColor)
-
-        drawPath(
-            path = path,
-            color = Color.Blue,
-            style = borderStyle
-        )
+        content()
     }
 }
 
